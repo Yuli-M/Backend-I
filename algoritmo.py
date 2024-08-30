@@ -15,46 +15,69 @@ m = np.array ([[-3,-3,2,-3,3,-2,-2,1,2,0,2,0,1],
         [-1,0,1,2,1,0,'F',0,-3,3,3,-2,-1],
         [1,-3,1,0,1,2,3,1,-2,3,3,0,3]])
 
-def ruta(filaI, columnaI, filaF, columnaF, matriz, menorCosto=True):
+def ruta(filaI, columnaI, filaF, columnaF, m, menorCosto=True):
     recorrido = []
+    movimientosRealizados = set()
     sumaCostos = 0
 
     filaActual = filaI
     columnaActual = columnaI
+    movimientosRealizados.add((filaActual, columnaActual))
+    columnas = 'ABCDEFGHIJKLM'
 
-    while (filaActual != filaF) or (columnaActual != columnaF):
-        recorrido.append((filaActual, columnaActual))
-        costoActual = matriz[filaActual, columnaActual]
-        
-        if isinstance(costoActual, (int, float)) and (filaActual, columnaActual) != (filaF, columnaF):
-            sumaCostos += costoActual
-            print(f"Celda: [{filaActual + 1}, {columnas[columnaActual]}] -- Costo acumulado: {sumaCostos}")
+    while (filaActual, columnaActual) != (filaF, columnaF):
+        #costoActual = m[filaActual, columnaActual]
+        #if isinstance(costoActual, (int, float)):
+            #sumaCostos += costoActual
+            #recorrido.append((filaActual, columnaActual, costoActual, sumaCostos))
+            #print(f"Celda: [{filaActual + 1}, {columnas[columnaActual]}] -- Costo: {costoActual} -- Costo acumulado: {sumaCostos}")
+
+            #recorrido.append((filaActual, columnaActual))
 
         movimientosPosibles = []
+
         if filaActual != filaF:
-            if filaActual + 1 < matriz.shape[0]:
+            if filaActual + 1 < m.shape[0] and (filaActual + 1, columnaActual) not in movimientosRealizados:
                 movimientosPosibles.append((filaActual + 1, columnaActual))
-            if filaActual - 1 >= 0:
+            if filaActual - 1 >= 0 and (filaActual - 1, columnaActual) not in movimientosRealizados:
                 movimientosPosibles.append((filaActual - 1, columnaActual))
         if columnaActual != columnaF:
-            if columnaActual + 1 < matriz.shape[1]:
+            if columnaActual + 1 < m.shape[1] and (filaActual, columnaActual + 1) not in movimientosRealizados:
                 movimientosPosibles.append((filaActual, columnaActual + 1))
-            if columnaActual - 1 >= 0:
+            if columnaActual - 1 >= 0 and (filaActual, columnaActual - 1) not in movimientosRealizados:
                 movimientosPosibles.append((filaActual, columnaActual - 1))
         
+        print(f"Movimientos posibles desde [{filaActual + 1}, {columnas[columnaActual]}]: {movimientosPosibles}")
+
+        #solo para saber los costos antes
+        for movimiento in movimientosPosibles:
+            costo = m[movimiento[0], movimiento[1]]
+            print(f"Moviemiento: {movimiento} -- Costo: {costo}")
+            if isinstance(costo, (int, float)):
+                sumaCostos += costo
+                recorrido.append((filaActual, columnaActual, costo, sumaCostos))
+                print(f"Celda: [{filaActual + 1}, {columnas[columnaActual]}] -- Costo: {costo} -- Costo acumulado: {sumaCostos}")
+            else:
+                print("valor no int");
+
         if not movimientosPosibles:
             break
 
+
+
         if menorCosto:
-            salto = min(movimientosPosibles, key=lambda x: matriz[x[0], x[1]] if isinstance(matriz[x[0], x[1]], (int, float)) else float('inf'))
+            salto = min(movimientosPosibles, key=lambda x: m[x[0], x[1]] if isinstance(m[x[0], x[1]], (int, float)) else float('inf'))
         else:
-            salto = max(movimientosPosibles, key=lambda x: matriz[x[0], x[1]] if isinstance(matriz[x[0], x[1]], (int, float)) else float('-inf') )
+            salto = max(movimientosPosibles, key=lambda x: m[x[0], x[1]] if isinstance(m[x[0], x[1]], (int, float)) else float('-inf') )
 
         filaActual, columnaActual = salto
-    if isinstance(matriz[filaF, columnaF], (int, float)):
-        costoTotal = matriz[filaF, columnaF]
-    else:
-        costoTotal = 0
+        movimientosRealizados.add((filaActual, columnaActual))
+
+    #costoFinal = m[filaF, columnaF]
+    #if isinstance(costoFinal, (int, float)):
+        #sumaCostos += costoFinal
+
+        print(f"Celda: [{filaF + 1}, {columnas[columnaF]}] -- Costo acumulado: {sumaCostos}")
 
     recorrido.append((filaF, columnaF))
 
@@ -66,29 +89,19 @@ final = 'F'
 posicionI = np.argwhere(m == inicio)
 posicionF = np.argwhere(m == final)
 
-if posicionI.size > 0 and posicionF.size > 0:
-    filaI, columnaI = posicionI [0]
-    filaF, columnaF = posicionF [0]
-    columnas = 'ABCDEFGHIJKLM'
-    name_columnaI = columnas[columnaI]
-    name_filaI = filaI + 1
-    name_columnaF = columnas[columnaF]
-    name_filaF = filaF + 1
+filaI, columnaI = posicionI[0]
+filaF, columnaF = posicionF[0]
+columnas = 'ABCDEFGHIJKLM'
 
-    print(f"El inicio esta en: [ {name_filaI}, {name_columnaI} ]")
-    print(f"El final esta en : [ {name_filaF}, {name_columnaF} ]")
+print(f"El inicio esta en: [ {filaI + 1}, {columnas[columnaI]} ]")
+print(f"El final esta en : [ {filaF + 1}, {columnas[columnaF]} ]")
 
-    recorridoMenor, costoTotalMenor = ruta(filaI, columnaI, filaF, columnaF, m, menorCosto=True)
-    print("\nRecorrido menor costo: ")
-    for fila, columna in recorridoMenor:
-        print(f"[ {fila + 1}, {columnas[columna]} ]")
-    print(f"Costo menor: {costoTotalMenor}")
+print("\nRecorrido menor costo: ")
+recorridoMenor, costoTotalMenor = ruta(filaI, columnaI, filaF, columnaF, m, menorCosto=True)
 
-    recorridoMayor, costoTotalMayor = ruta(filaI, columnaI, filaF, columnaF, m, menorCosto=False)
-    print("\nRecorrido mayor costo: ")
-    for fila, columna in recorridoMayor:
-        print(f"[ {fila + 1}, {columnas[columna]} ]")
-    print(f"Costo mayor: {costoTotalMayor}")
+print("\nRecorrido mayor costo: ")
+recorridoMayor, costoTotalMayor = ruta(filaI, columnaI, filaF, columnaF, m, menorCosto=False)
+
 
 
 
