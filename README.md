@@ -1,6 +1,6 @@
-# Backend-I \n
+# Backend-I 
 Practicas de la materia
 
-# Autor \n
-Yuli Moreno S. \n
+# Autor 
+Yuli Moreno S. 
 21760028
