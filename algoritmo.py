@@ -26,8 +26,9 @@ def ruta(filaI, columnaI, filaF, columnaF, matriz, menorCosto=True):
         recorrido.append((filaActual, columnaActual))
         costoActual = matriz[filaActual, columnaActual]
         
-        if isinstance(costoActual, (int, float)):
+        if isinstance(costoActual, (int, float)) and (filaActual, columnaActual) != (filaF, columnaF):
             sumaCostos += costoActual
+            print(f"Celda: [{filaActual + 1}, {columnas[columnaActual]}] -- Costo acumulado: {sumaCostos}")
 
         movimientosPosibles = []
         if filaActual != filaF:
@@ -50,11 +51,12 @@ def ruta(filaI, columnaI, filaF, columnaF, matriz, menorCosto=True):
             salto = max(movimientosPosibles, key=lambda x: matriz[x[0], x[1]] if isinstance(matriz[x[0], x[1]], (int, float)) else float('-inf') )
 
         filaActual, columnaActual = salto
+    if isinstance(matriz[filaF, columnaF], (int, float)):
+        costoTotal = matriz[filaF, columnaF]
+    else:
+        costoTotal = 0
 
     recorrido.append((filaF, columnaF))
-    costoTotal = matriz[filaF, columnaF]
-    if isinstance(costoTotal, (int, float)):
-        sumaCostos += costoTotal
 
     return recorrido, sumaCostos
 
