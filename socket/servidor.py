@@ -2,6 +2,8 @@ import socket
 import threading
 import sys
 import pickle
+#from os import listdir, path
+import os
 class Servidor():
     
     def __init__(self, host="localhost", port=7000):
@@ -31,7 +33,8 @@ class Servidor():
         except:
             self.sock.close()
             sys.exit()
-            
+
+     # envia el mensaje a todos los clientes excepto al que lo envio     
     def msg_to_all(self, msg, cliente):
         for c in self.clientes:
             try:
@@ -50,16 +53,59 @@ class Servidor():
                 pass
             
     def procesarCon(self):
-        print("ProcesarConiniciado") 
+        print("ProcesarCon iniciado") 
         while True:
             if len(self.clientes) > 0:
                 for c in self.clientes:
                     try:
                         data = c.recv(1024)
                         if data:
-                            self.msg_to_all(data,c)
+                            msg = pickle.loads(data)
+
+                            if msg.startswith('ls'):
+                                self.comando_ls(msg, c)
+                            elif msg.startswith('get'):
+                                self.comando_get(msg, c)
+                            else:
+                                self.msg_to_all(data,c)
                     except:
                         pass
+
+    def comando_ls(self, msg, cliente):
+        partes = msg.split()# espacios
+
+        if len(partes) == 0:
+            return
+        comando = partes[0] #el comando es la primera parte
+
+        if comando == 'ls':
+            if len(partes) > 1:
+                directorio = partes[1]
+            else:
+                directorio = '.'
+
+            if os.path.isdir(directorio):
+                lista = os.listdir(directorio)
+                respuesta = f"{directorio}" + "\n".join(lista)
+            else:
+                respuesta = f"{directorio} no encontrado"
+
+            cliente.send(pickle.dumps(respuesta))
+        else:
+            respuesta = f"{comando} no se reconoce"
+            cliente.send(pickle.dumps(respuesta))
+
+    def comando_get(self, msg, cliente):
+        partes = msg.split()
+        if len(partes) < 2:
+            respuesta = "get <nombre_archivo>"
+            cliente.send(pickle.dumps(respuesta))
+            return
+        
+        
+    
+    #def ls(ruta = '/Documents/workspace/back/files'):
+        #return listdir(ruta)
 
 server = Servidor()
 server()

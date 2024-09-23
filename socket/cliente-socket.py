@@ -2,6 +2,7 @@ import socket
 import threading
 import sys
 import pickle
+import os
 class Cliente():
     
     def __init__(self, host="localhost", port=7000):
@@ -26,7 +27,6 @@ class Cliente():
                 data = self.sock.recv(1028)
                 if data:
                     data = pickle.loads(data)
-                    print(data)
             except:
                 pass
     
@@ -35,6 +35,7 @@ class Cliente():
             self.sock.send(pickle.dumps(msg))
         except:
             print('error')
+
 
 client = Cliente()
 client()
