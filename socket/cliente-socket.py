@@ -26,13 +26,29 @@ class Cliente():
             try:
                 data = self.sock.recv(1028)
                 if data:
-                    data = pickle.loads(data)
+                    try:
+                        data = pickle.loads(data)
+                        print(data)
+                    except:
+                        filename = data.decode().split('/')[-1]
+                        if not os.path.exists('download'):
+                            os.makedirs('download')
+                        filename = os.path.join('download', filename)
+                        with open(filename, 'wb') as file:
+                            file.write(data)
+                        print(f'{filename} guardado en "download"')
             except:
                 pass
     
     def send_msg(self, msg): 
         try:
             self.sock.send(pickle.dumps(msg))
+        except:
+            print('error')
+
+    def get_file(self, filename):
+        try:
+            self.sock.send(pickle.dumps(f'get {filename}'))
         except:
             print('error')
 

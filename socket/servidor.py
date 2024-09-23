@@ -98,9 +98,22 @@ class Servidor():
     def comando_get(self, msg, cliente):
         partes = msg.split()
         if len(partes) < 2:
-            respuesta = "get <nombre_archivo>"
+            respuesta = "Comando: get <nombre_archivo>"
             cliente.send(pickle.dumps(respuesta))
             return
+        
+        filename = partes[1]
+        files = '/home/yuli/Documents/workspace/back/socket/files'
+        filename = os.path.join(files, filename)
+
+        if os.path.isfile(filename):
+            with open(filename, 'rb') as file: #rb modo binario
+                contenido = file.read()
+                cliente.send(contenido)
+
+        else:
+            respuesta = f"{filename} no encontrado"
+            cliente.send(pickle.dumps(respuesta))
         
         
     
