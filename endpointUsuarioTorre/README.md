@@ -2,7 +2,8 @@
 
 Este proyecto es una API simple utilizando Flask y PostgreSQL para gestionar usuarios. Existen dos endpoints principales: uno para obtener todos los usuarios y otro para obtener usuarios basados en su torre_id.
 Requisitos
-1. **Instalación de dependencias:**
+
+## Instalación de dependencias:
 
 Tener instalados los siguientes paquetes:
 
@@ -12,7 +13,7 @@ Tener instalados los siguientes paquetes:
 
 
 
-2. **Configuración de la base de datos:**
+## Configuración de la base de datos:
 
 Crear un archivo database.ini en el directorio raíz del proyecto (ya está incluido en la carpeta endpointUsuarioTorre) con la siguiente estructura:
 ```bash
@@ -27,12 +28,12 @@ password=tu_password
  Reemplazar tu_password con tu contraseña de PostgreSQL.
 
  
- 3. **Configuración de la base de datos**
+ ## Configuración de la base de datos
 
 Se debe tener una base de datos llamada torres con una tabla usuario. 
 
 
-4. **Ejecución de la aplicación**
+## Ejecución de la aplicación
 
 Para ejecutar la API, primero el servidor de PostgreSQL debe estar en ejecución y que las credenciales en database.ini sean correctas.
 
@@ -43,7 +44,7 @@ Luego, ejecuta el archivo hello.py:
 flask --app hello run
 
 ```
-5. **Endpoints disponibles**
+## Endpoints disponibles
    
 Obtener todos los usuarios
 
@@ -58,12 +59,13 @@ Obtener usuarios por torre_id
   -Descripción: Retorna todos los usuarios con un determinado torre_id.
 
 
-6. **Ejemplo de Uso**
+## Ejemplo de Uso
 
-    Para obtener todos los usuarios,  hacer una petición GET a:
+  Para obtener todos los usuarios,  hacer una petición GET a:
 
-    ```bash
+  ```bash
     http://localhost:8080/usuarios
+```
 
 Para obtener usuarios filtrados por torre_id, puedes hacer una petición GET a:
 
