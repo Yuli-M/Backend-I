@@ -1,0 +1,98 @@
+CREATE TABLE clients (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(100),
+	start_date DATE,
+	end_date DATE,
+	payment_amount DECIMAL
+);
+
+CREATE TABLE payments (
+	id SERIAL PRIMARY KEY,
+	client_id INT REFERENCES clients(id),
+	date_payment DATE,
+	paid BOOLEAN DEFAULT FALSE
+);
+ALTER TABLE payments
+ADD COLUMN frequency VARCHAR(20); 
+
+
+--funcion para crear cliente
+CREATE OR REPLACE FUNCTION create_client(name VARCHAR, start_date DATE, end_date DATE, payment_amount DECIMAL) RETURNS VOID AS $$
+	INSERT INTO clients (name, start_date, end_date, payment_amount) VALUES (name, start_date, end_date, payment_amount)
+$$ LANGUAGE sql;
+
+
+--funcion para aplicar los cambios
+CREATE OR REPLACE FUNCTION apply_payments(client_id INT, frequency VARCHAR) RETURNS VOID AS $$
+DECLARE
+    date DATE;
+    interval INTERVAL;
+    end_date DATE;
+BEGIN
+    --fecha de inicio yfecha final 
+    SELECT c.start_date, c.end_date INTO date, end_date 
+    FROM clients AS c 
+    WHERE c.id = client_id;
+    
+    IF frequency = 'semanal' THEN
+        interval := '1 week';
+    ELSIF frequency = 'mensual' THEN
+        interval := '1 month';
+    ELSIF frequency = 'trimestral' THEN
+        interval := '3 months';
+    ELSIF frequency = 'semestral' THEN
+        interval := '6 months';
+    ELSIF frequency = 'anual' THEN
+        interval := '1 year';
+    ELSE
+        RAISE EXCEPTION 'Frecuencia no válida';
+    END IF;
+    
+    -- pagos hasta la fecha final
+    WHILE date <= end_date LOOP
+        --para el domingo
+        IF EXTRACT(DOW FROM date) = 0 THEN
+            date := date + INTERVAL '1 day'; 
+        END IF;
+
+        INSERT INTO payments (client_id, frequency, date_payment, paid)
+        VALUES (client_id, frequency, date, FALSE);
+
+        date := date + interval;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+--funcion para generar reporte
+CREATE OR REPLACE FUNCTION report_client(p_client_id INT) 
+RETURNS TABLE(date_payment DATE, status TEXT) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT p.date_payment,
+           CASE WHEN p.paid THEN 'pagado' ELSE 'debe' END AS status
+    FROM payments p
+    WHERE p.client_id = p_client_id
+    ORDER BY p.date_payment;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+--funcion para verificar pago
+CREATE OR REPLACE FUNCTION pay_payment(p_client_id INT, p_date_payment DATE, p_payment_amount DECIMAL) 
+RETURNS VOID AS $$
+BEGIN
+    UPDATE payments
+    SET paid = TRUE
+    WHERE client_id = p_client_id 
+      AND date_payment = p_date_payment 
+      AND p_payment_amount >= (SELECT payment_amount FROM clients WHERE id = p_client_id);
+END;
+$$ LANGUAGE plpgsql;
+
+
